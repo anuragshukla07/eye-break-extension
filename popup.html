@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Eye Break Reminder</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        text-align: center;
+        background-color: #f9f9f9;
+      }
+      h1 {
+        font-size: 20px;
+        color: #333;
+      }
+      p {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 20px;
+      }
+      #toggleButton {
+        background-color: #28a745;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+      #toggleButton.stopped {
+        background-color: #dc3545;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Eye Break Reminder</h1>
+    <p>Take a break every 20 minutes for 20 seconds.</p>
+    <button id="toggleButton">Start Reminder</button>
+    <script src="popup.js"></script>
+  </body>
+</html>
