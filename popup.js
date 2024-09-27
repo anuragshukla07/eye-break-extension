@@ -1,11 +1,34 @@
 const toggleButton = document.getElementById("toggleButton");
+const timerDisplay = document.getElementById("timer");
 
-// Check the current alarm state and update the button on popup open
+// Function to update the timer display
+function updateTimerDisplay(timeLeft) {
+  const minutes = Math.floor(timeLeft / 60);
+  const seconds = timeLeft % 60;
+  timerDisplay.textContent = `Time until next break: ${minutes}:${
+    seconds < 10 ? "0" : ""
+  }${seconds}`;
+}
+
+// Function to retrieve remaining time and update the display
+function loadRemainingTime() {
+  chrome.storage.local.get("remainingTime", (data) => {
+    const timeLeft = data.remainingTime || 1200; // Default to 1200 seconds
+    updateTimerDisplay(timeLeft);
+  });
+}
+
+// Check the current alarm state and update the button and timer on popup open
 chrome.alarms.get("eyeBreak", (alarm) => {
   if (alarm) {
-    updateButton(true);
+    toggleButton.textContent = "Stop Reminder";
+    toggleButton.classList.add("stopped"); // Ensure the button is red
+    loadRemainingTime(); // Load and display the remaining time immediately
+    startUpdatingTimer(); // Start updating the timer
   } else {
-    updateButton(false);
+    toggleButton.textContent = "Start Reminder";
+    toggleButton.classList.remove("stopped"); // Ensure class is removed
+    updateTimerDisplay(1200); // Show initial time
   }
 });
 
@@ -15,45 +38,39 @@ toggleButton.addEventListener("click", () => {
     if (alarm) {
       // If alarm exists, clear it
       chrome.alarms.clear("eyeBreak", () => {
-        updateButton(false);
+        toggleButton.textContent = "Start Reminder";
+        toggleButton.classList.remove("stopped"); // Change color back to green
+        chrome.runtime.sendMessage({ action: "stop" });
+        updateTimerDisplay(1200); // Reset display
+        chrome.storage.local.remove("remainingTime"); // Clear storage
       });
     } else {
       // Otherwise, create a new alarm
       chrome.alarms.create("eyeBreak", { periodInMinutes: 20 });
-      updateButton(true);
+      toggleButton.textContent = "Stop Reminder";
+      toggleButton.classList.add("stopped"); // Change color to red
+      chrome.runtime.sendMessage({ action: "start" });
+
+      // Immediately start updating the timer display
+      startUpdatingTimer();
+      loadRemainingTime(); // Load and display the remaining time immediately
     }
   });
 });
 
-// Function to update the button state
-function updateButton(isActive) {
-  if (isActive) {
-    toggleButton.textContent = "Stop Reminder";
-    toggleButton.classList.remove("stopped");
-    toggleButton.style.backgroundColor = "#dc3545"; // Red
-  } else {
-    toggleButton.textContent = "Start Reminder";
-    toggleButton.classList.add("stopped");
-    toggleButton.style.backgroundColor = "#28a745"; // Green
-  }
+// Function to periodically update the timer display
+function startUpdatingTimer() {
+  const interval = setInterval(() => {
+    chrome.storage.local.get("remainingTime", (data) => {
+      const timeLeft = data.remainingTime || 1200;
+      if (timeLeft > 0) {
+        updateTimerDisplay(timeLeft);
+      } else {
+        clearInterval(interval); // Stop updating if time is up
+      }
+    });
+  }, 1000);
 }
 
-// chrome.alarms.create("testAlarm", { delayInMinutes: 0.7 }); // Fires after 6 seconds
-
-// chrome.alarms.onAlarm.addListener((alarm) => {
-//   if (alarm.name === "testAlarm") {
-//     console.log("Test alarm triggered");
-//     chrome.notifications.create({
-//       type: "basic",
-//       iconUrl: "icon.png",
-//       title: "Test Notification",
-//       message: "This is a test notification.",
-//       silent: false,
-//     });
-//   }
-// });
-
-// document.getElementById("toggleButton").addEventListener("click", () => {
-//   chrome.alarms.create("eyeBreak", { periodInMinutes: 1 });
-//   console.log("Manual start: Alarm set for 1 minute");
-// });
+// Ensure to update the timer immediately when the popup is opened
+loadRemainingTime(); // Call this to show initial time immediately

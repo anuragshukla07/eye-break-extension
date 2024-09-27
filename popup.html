@@ -13,30 +13,29 @@
         font-size: 20px;
         color: #333;
       }
-      p {
-        font-size: 14px;
-        color: #666;
-        margin-bottom: 20px;
-      }
       #toggleButton {
-        background-color: #28a745;
+        background-color: #28a745; /* Green */
         color: white;
         padding: 10px 20px;
         border: none;
         border-radius: 5px;
         font-size: 16px;
         cursor: pointer;
-        transition: background-color 0.3s ease;
       }
       #toggleButton.stopped {
-        background-color: #dc3545;
+        background-color: #dc3545; /* Red */
+      }
+      #timer {
+        font-size: 24px;
+        margin-top: 10px;
+        color: #333;
       }
     </style>
   </head>
   <body>
     <h1>Eye Break Reminder</h1>
-    <p>Take a break every 20 minutes for 20 seconds.</p>
     <button id="toggleButton">Start Reminder</button>
+    <div id="timer">Time until next break: 20:00</div>
     <script src="popup.js"></script>
   </body>
 </html>
