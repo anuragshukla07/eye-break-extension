@@ -3,10 +3,10 @@ let timeLeft = 1200; // 20 minutes in seconds
 let isActive = false;
 
 // Set the interval to 20 minutes
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.alarms.create("eyeBreak", { periodInMinutes: 20 });
-  console.log("Alarm created: 20 minutes interval");
-});
+// chrome.runtime.onInstalled.addListener(() => {
+//   chrome.alarms.create("eyeBreak", { periodInMinutes: 20 });
+//   console.log("Alarm created: 20 minutes interval");
+// });
 
 // Listen for the alarm and show a notification
 chrome.alarms.onAlarm.addListener((alarm) => {
@@ -27,9 +27,9 @@ function startCountdown() {
   isActive = true;
   countdownTimer = setInterval(() => {
     if (timeLeft <= 0) {
-      clearInterval(countdownTimer);
       timeLeft = 1200; // Reset to 1200 seconds (20 minutes)
-      isActive = false; // Mark as inactive after reset
+      chrome.alarms.create("eyeBreak", { periodInMinutes: 20 }); // Restart alarm for 20 minutes
+      chrome.storage.local.set({ remainingTime: timeLeft }); // Update storage with reset time
     } else {
       timeLeft--;
       chrome.storage.local.set({ remainingTime: timeLeft });
@@ -46,7 +46,7 @@ function stopCountdown() {
 }
 
 // Message listener for starting/stopping the countdown
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((request) => {
   if (request.action === "start") {
     if (!isActive) {
       startCountdown();

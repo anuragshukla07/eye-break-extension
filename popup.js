@@ -1,5 +1,6 @@
 const toggleButton = document.getElementById("toggleButton");
 const timerDisplay = document.getElementById("timer");
+let updateInterval; // To store the timer update interval
 
 // Function to update the timer display
 function updateTimerDisplay(timeLeft) {
@@ -13,9 +14,23 @@ function updateTimerDisplay(timeLeft) {
 // Function to retrieve remaining time and update the display
 function loadRemainingTime() {
   chrome.storage.local.get("remainingTime", (data) => {
-    const timeLeft = data.remainingTime || 1200; // Default to 1200 seconds
+    const timeLeft = data.remainingTime || 1200; // Default to 1200 seconds if no stored time
     updateTimerDisplay(timeLeft);
   });
+}
+
+// Start periodically updating the timer display every second
+function startUpdatingTimer() {
+  if (updateInterval) {
+    clearInterval(updateInterval); // Clear any previous intervals
+  }
+
+  updateInterval = setInterval(() => {
+    chrome.storage.local.get("remainingTime", (data) => {
+      const timeLeft = data.remainingTime || 1200;
+      updateTimerDisplay(timeLeft); // Keep updating the display
+    });
+  }, 1000); // Update every second
 }
 
 // Check the current alarm state and update the button and timer on popup open
@@ -24,7 +39,7 @@ chrome.alarms.get("eyeBreak", (alarm) => {
     toggleButton.textContent = "Stop Reminder";
     toggleButton.classList.add("stopped"); // Ensure the button is red
     loadRemainingTime(); // Load and display the remaining time immediately
-    startUpdatingTimer(); // Start updating the timer
+    startUpdatingTimer(); // Start the UI updating process
   } else {
     toggleButton.textContent = "Start Reminder";
     toggleButton.classList.remove("stopped"); // Ensure class is removed
@@ -43,6 +58,7 @@ toggleButton.addEventListener("click", () => {
         chrome.runtime.sendMessage({ action: "stop" });
         updateTimerDisplay(1200); // Reset display
         chrome.storage.local.remove("remainingTime"); // Clear storage
+        clearInterval(updateInterval); // Stop updating the timer UI
       });
     } else {
       // Otherwise, create a new alarm
@@ -52,25 +68,11 @@ toggleButton.addEventListener("click", () => {
       chrome.runtime.sendMessage({ action: "start" });
 
       // Immediately start updating the timer display
-      startUpdatingTimer();
-      loadRemainingTime(); // Load and display the remaining time immediately
+      loadRemainingTime();
+      startUpdatingTimer(); // Ensure the timer display is continuously updated
     }
   });
 });
-
-// Function to periodically update the timer display
-function startUpdatingTimer() {
-  const interval = setInterval(() => {
-    chrome.storage.local.get("remainingTime", (data) => {
-      const timeLeft = data.remainingTime || 1200;
-      if (timeLeft > 0) {
-        updateTimerDisplay(timeLeft);
-      } else {
-        clearInterval(interval); // Stop updating if time is up
-      }
-    });
-  }, 1000);
-}
 
 // Ensure to update the timer immediately when the popup is opened
 loadRemainingTime(); // Call this to show initial time immediately

@@ -9,25 +9,36 @@
         text-align: center;
         background-color: #f9f9f9;
       }
+
       h1 {
-        font-size: 20px;
+        font-size: 24px; /* Increased font size */
         color: #333;
+        margin-bottom: 20px; /* Added margin for spacing */
       }
+
       #toggleButton {
         background-color: #28a745; /* Green */
         color: white;
-        padding: 10px 20px;
+        padding: 12px 24px; /* Increased padding for a larger button */
         border: none;
         border-radius: 5px;
-        font-size: 16px;
+        font-size: 18px; /* Increased font size */
         cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s; /* Smooth transition */
       }
+
+      #toggleButton:hover {
+        background-color: #218838; /* Darker green on hover */
+        transform: scale(1.05); /* Slightly enlarge the button */
+      }
+
       #toggleButton.stopped {
         background-color: #dc3545; /* Red */
       }
+
       #timer {
-        font-size: 24px;
-        margin-top: 10px;
+        font-size: 28px; /* Increased font size */
+        margin-top: 20px; /* Increased margin for better spacing */
         color: #333;
       }
     </style>
