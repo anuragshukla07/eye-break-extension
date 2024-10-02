@@ -13,3 +13,4 @@ A simple Chrome extension to help reduce screen time by reminding you to follow 
 - **Notification**: Reminds you to take a 20-second break every 20 minutes.
 
 ## Screenshots
+![UI of the extension](https://github.com/anuragshukla07/eye-break-extension/blob/master/Screenshots/UI-Image.jpg)
